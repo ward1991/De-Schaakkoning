@@ -1,45 +1,61 @@
-/**
- * BoardRenderer klasse - Rendert het schaakbord naar de DOM
- * Verantwoordelijk voor: visuele weergave van het bord
- */
 
 export class BoardRenderer {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
     }
-
-    /**
-     * Render het complete bord
-     */
+  
     render(board) {
-        // TODO: Render het bord met alle stukken
+        this.container.innerHTML = ''; // Maak container leeg
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                const piece = board.getPiece(row, col);
+                this.renderSquare(row, col, piece);
+            }
+        }
+
     }
 
-    /**
-     * Render een enkel vakje
-     */
     renderSquare(row, col, piece) {
-        // TODO: Render een vakje
+
+        const square = document.createElement('div');
+        square.classList.add('square');
+        square.classList.add((row + col) % 2 === 0 ? 'light' : 'dark');
+        square.dataset.row = row;
+        square.dataset.col = col;
+
+        if (piece) {
+            const pieceImg = document.createElement('img');
+            pieceImg.src = `assets/images/${piece.color}_${piece.type}.png`;
+            pieceImg.classList.add('piece');
+            square.appendChild(pieceImg);
+        }
+
+        this.container.appendChild(square);
     }
 
-    /**
-     * Markeer geselecteerd vakje
-     */
+
     highlightSelected(row, col) {
-        // TODO: Highlight selectie
+        const square = this.container.querySelector(`div.square[data-row='${row}'][data-col='${col}']`);
+        if (square) {
+            square.classList.add('selected');
+        }   
+
     }
 
-    /**
-     * Toon geldige zetten
-     */
+
     showValidMoves(moves) {
-        // TODO: Toon mogelijke zetten
+        moves.forEach(move => {
+            const square = this.container.querySelector(`div.square[data-row='${move.row}'][data-col='${move.col}']`);
+            if (square) {
+                square.classList.add('valid-move');
+            }
+        });
     }
 
-    /**
-     * Verwijder alle highlights
-     */
     clearHighlights() {
-        // TODO: Verwijder highlights
+        const highlightedSquares = this.container.querySelectorAll('.selected, .valid-move');
+        highlightedSquares.forEach(square => {
+            square.classList.remove('selected', 'valid-move');
+        });
     }
 }
