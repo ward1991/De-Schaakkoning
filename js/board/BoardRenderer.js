@@ -25,7 +25,7 @@ export class BoardRenderer {
 
         if (piece) {
             const pieceImg = document.createElement('img');
-            pieceImg.src = `assets/images/${piece.color}_${piece.type}.png`;
+            pieceImg.src = `assets/images/pieces/${piece.color}_${piece.type}.png`;
             pieceImg.classList.add('piece');
             square.appendChild(pieceImg);
         }
