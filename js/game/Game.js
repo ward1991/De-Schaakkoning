@@ -6,12 +6,16 @@
 import { SoundManager } from '../utils/SoundManager.js';
 
 export class Game {
-    constructor() {
+    constructor(gameMode = 'pvp', difficulty = null) {
+        this.gameMode = gameMode; // 'pvp' of 'ai'
+        this.difficulty = difficulty; // 'easy', 'medium', 'hard' (voor AI)
         this.currentPlayer = 'white';
         this.gameState = 'playing'; // 'playing', 'check', 'checkmate', 'stalemate', 'draw'
         this.moveHistory = [];
         this.capturedPieces = { white: [], black: [] };
         this.soundManager = new SoundManager();
+        
+        console.log(`Game mode: ${this.gameMode}${this.difficulty ? ` (${this.difficulty})` : ''}`);
     }
 
     /**

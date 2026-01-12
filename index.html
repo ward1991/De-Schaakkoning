@@ -21,12 +21,60 @@
             <h1>De STARWARS Schaakkoning - Het leukste schaakspel!</h1>
         </header>
         <main>
-            <div id="game-container">
+            <!-- Main Menu -->
+            <div id="main-menu" class="menu-container">
+                <div class="menu-card">
+                    <h2>Kies je speltype</h2>
+                    <div class="menu-buttons">
+                        <button id="btn-pvp" class="menu-btn primary">
+                            <img src="assets/images/pieces/black_queen.png" alt="PVP" class="btn-icon-img">
+                            <span class="btn-text">Speler vs Speler</span>
+                        </button>
+                        <button id="btn-ai" class="menu-btn primary">
+                            <img src="assets/images/pieces/white_bishop.png" alt="AI" class="btn-icon-img">
+                            <span class="btn-text">Speler vs AI</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Difficulty Menu -->
+            <div id="difficulty-menu" class="menu-container hidden">
+                <div class="menu-card">
+                    <h2>Kies moeilijkheidsgraad</h2>
+                    <div class="menu-buttons">
+                        <button id="btn-easy" class="menu-btn" data-difficulty="easy">
+                            <span class="btn-icon">🌱</span>
+                            <span class="btn-text">Gemakkelijk</span>
+                            <span class="btn-desc">Perfect voor beginners</span>
+                        </button>
+                        <button id="btn-medium" class="menu-btn" data-difficulty="medium">
+                            <span class="btn-icon">⚔️</span>
+                            <span class="btn-text">Gemiddeld</span>
+                            <span class="btn-desc">Een eerlijke uitdaging</span>
+                        </button>
+                        <button id="btn-hard" class="menu-btn" data-difficulty="hard">
+                            <span class="btn-icon">🔥</span>
+                            <span class="btn-text">Moeilijk</span>
+                            <span class="btn-desc">Voor ervaren spelers</span>
+                        </button>
+                    </div>
+                    <button id="btn-back-to-main" class="menu-btn secondary">
+                        ← Terug
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game Container -->
+            <div id="game-container" class="hidden">
                 <div id="chess-board"></div>
                 <div id="game-info">
                     <div id="player-info"></div>
                     <div id="move-history"></div>
-                    <div id="game-controls"></div>
+                    <div id="game-controls">
+                        <button id="btn-new-game" class="control-btn">Nieuw Spel</button>
+                        <button id="btn-back-to-menu" class="control-btn">Terug naar Menu</button>
+                    </div>
                 </div>
             </div>
         </main>
