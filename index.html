@@ -34,6 +34,9 @@
                             <img src="assets/images/pieces/white_bishop.png" alt="AI" class="btn-icon-img">
                             <span class="btn-text">Speler vs AI</span>
                         </button>
+                        <button id="btn-rules" class="menu-btn secondary">
+                            <span class="btn-text">📖 Spelregels</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -44,17 +47,17 @@
                     <h2>Kies moeilijkheidsgraad</h2>
                     <div class="menu-buttons">
                         <button id="btn-easy" class="menu-btn" data-difficulty="easy">
-                            <span class="btn-icon">🌱</span>
+                            <img src="assets/images/pieces/black_pawn.png" alt="Gemakkelijk" class="btn-icon-img">
                             <span class="btn-text">Gemakkelijk</span>
                             <span class="btn-desc">Perfect voor beginners</span>
                         </button>
                         <button id="btn-medium" class="menu-btn" data-difficulty="medium">
-                            <span class="btn-icon">⚔️</span>
+                            <img src="assets/images/pieces/black_bishop.png" alt="Gemiddeld" class="btn-icon-img">
                             <span class="btn-text">Gemiddeld</span>
                             <span class="btn-desc">Een eerlijke uitdaging</span>
                         </button>
                         <button id="btn-hard" class="menu-btn" data-difficulty="hard">
-                            <span class="btn-icon">🔥</span>
+                            <img src="assets/images/pieces/black_queen.png" alt="Moeilijk" class="btn-icon-img">
                             <span class="btn-text">Moeilijk</span>
                             <span class="btn-desc">Voor ervaren spelers</span>
                         </button>
@@ -73,11 +76,84 @@
                     <div id="move-history"></div>
                     <div id="game-controls">
                         <button id="btn-new-game" class="control-btn">Nieuw Spel</button>
+                        <button id="btn-rules-ingame" class="control-btn">📖 Spelregels</button>
                         <button id="btn-back-to-menu" class="control-btn">Terug naar Menu</button>
                     </div>
                 </div>
             </div>
         </main>
+
+        <!-- Rules Modal -->
+        <div id="rules-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>♟️ Schaakregels & Speluitleg</h2>
+                    <button id="btn-close-rules" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <section>
+                        <h3>🎯 Doel van het Spel</h3>
+                        <p>Het doel van schaken is om de koning van je tegenstander schaakmat te zetten. Dit betekent dat de koning wordt aangevallen en geen enkele zet kan maken om aan de aanval te ontsnappen.</p>
+                    </section>
+
+                    <section>
+                        <h3>♟️ Hoe bewegen de stukken?</h3>
+                        <div class="piece-rules">
+                            <div class="piece-rule">
+                                <strong>Pion (♟)</strong>
+                                <p>Beweegt 1 vakje naar voren (2 bij eerste zet). Slaat schuin aan.</p>
+                            </div>
+                            <div class="piece-rule">
+                                <strong>Toren (♜)</strong>
+                                <p>Beweegt horizontaal of verticaal over het hele bord.</p>
+                            </div>
+                            <div class="piece-rule">
+                                <strong>Paard (♞)</strong>
+                                <p>Beweegt in een L-vorm: 2 vakjes in één richting en 1 vakje dwars. Kan over stukken springen.</p>
+                            </div>
+                            <div class="piece-rule">
+                                <strong>Loper (♝)</strong>
+                                <p>Beweegt diagonaal over het hele bord.</p>
+                            </div>
+                            <div class="piece-rule">
+                                <strong>Koningin (♛)</strong>
+                                <p>Beweegt horizontaal, verticaal of diagonaal. Het krachtigste stuk!</p>
+                            </div>
+                            <div class="piece-rule">
+                                <strong>Koning (♚)</strong>
+                                <p>Beweegt 1 vakje in elke richting. Moet te allen tijde beschermd worden!</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3>⚔️ Belangrijke Regels</h3>
+                        <ul>
+                            <li><strong>Schaak:</strong> Als je koning wordt aangevallen, sta je schaak en moet je deze aanval blokkeren, ontwijken of het aanvallende stuk slaan.</li>
+                            <li><strong>Schaakmat:</strong> Als je koning schaak staat en je geen geldige zet hebt om dit op te lossen, ben je schaakmat en heb je verloren.</li>
+                            <li><strong>Pat:</strong> Als je niet schaak staat maar geen geldige zet kunt doen, is het remise (gelijkspel).</li>
+                            <li><strong>Rokade:</strong> Een speciale zet waarbij de koning 2 vakjes naar de toren beweegt en de toren over de koning springt. Beide stukken mogen nog niet hebben bewogen.</li>
+                            <li><strong>En Passant:</strong> Een speciale pionzet waarbij je een pion kunt slaan die net 2 vakjes vooruit is gegaan.</li>
+                            <li><strong>Promotie:</strong> Wanneer een pion de andere kant van het bord bereikt, mag deze worden gepromoveerd tot een koningin, toren, loper of paard.</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>💡 Tips voor Beginners</h3>
+                        <ul>
+                            <li>Bescherm altijd je koning!</li>
+                            <li>Probeer het centrum van het bord te controleren</li>
+                            <li>Ontwikkel je stukken vroeg in het spel</li>
+                            <li>Denk vooruit: wat kan je tegenstander doen?</li>
+                            <li>Leer van je fouten en blijf oefenen!</li>
+                        </ul>
+                    </section>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-close-rules-bottom" class="control-btn">Begrepen! Laten we spelen!</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- JavaScript modules -->
