@@ -2,12 +2,14 @@ import { Game } from './game/Game.js';
 import { Board } from './board/Board.js';
 import { UI } from './ui/UI.js';
 import { BoardRenderer } from './board/BoardRenderer.js';
+import { GameController } from './game/GameController.js';
 
 // Globale variabelen
 let game = null;
 let board = null;
 let ui = null;
 let boardRenderer = null;
+let gameController = null;
 let gameMode = null; // 'pvp' of 'ai'
 let difficulty = null; // 'easy', 'medium', 'hard'
 
@@ -60,6 +62,44 @@ function initializeMenus() {
             showMainMenu();
         }
     });
+
+    // Rules buttons
+    document.getElementById('btn-rules').addEventListener('click', () => {
+        showRulesModal();
+    });
+
+    document.getElementById('btn-rules-ingame')?.addEventListener('click', () => {
+        showRulesModal();
+    });
+
+    document.getElementById('btn-close-rules').addEventListener('click', () => {
+        hideRulesModal();
+    });
+
+    document.getElementById('btn-close-rules-bottom').addEventListener('click', () => {
+        hideRulesModal();
+    });
+
+    // Undo button
+    document.getElementById('btn-undo')?.addEventListener('click', () => {
+        if (gameController) {
+            gameController.undo();
+        }
+    });
+}
+
+/**
+ * Toont het regels modal
+ */
+function showRulesModal() {
+    document.getElementById('rules-modal').classList.remove('hidden');
+}
+
+/**
+ * Verbergt het regels modal
+ */
+function hideRulesModal() {
+    document.getElementById('rules-modal').classList.add('hidden');
 }
 
 /**
@@ -103,16 +143,19 @@ function startGame(mode, diff = null) {
  */
 function initializeGame() {
     console.log('De Schaakkoning wordt geladen...');
-    
+
     // Initialiseer het spel
     game = new Game(gameMode, difficulty);
     board = new Board();
     ui = new UI();
     boardRenderer = new BoardRenderer('chess-board');
-    
+
     // Zet stukken op startpositie en render het bord
     board.setupInitialPosition();
     boardRenderer.render(board);
-    
+
+    // Initialiseer de game controller voor interactiviteit
+    gameController = new GameController(game, board, boardRenderer, ui);
+
     console.log('Spel geïnitialiseerd!');
 }

@@ -15,7 +15,39 @@ export class Pawn extends Piece {
     }
 
     getPossibleMoves(row, col, board) {
-        // TODO: Implementeer pion bewegingen (vooruit, slaan diagonaal, en passant, promotie)
-        return [];
+        const moves = [];
+        const direction = this.color === 'white' ? -1 : 1; // Wit gaat omhoog, zwart omlaag
+
+        // Een vakje vooruit
+        const newRow = row + direction;
+        if (newRow >= 0 && newRow < 8 && !board.getPiece(newRow, col)) {
+            moves.push({ row: newRow, col });
+
+            // Twee vakjes vooruit (alleen eerste zet)
+            if (!this.hasMoved) {
+                const twoStepsRow = row + (direction * 2);
+                if (!board.getPiece(twoStepsRow, col)) {
+                    moves.push({ row: twoStepsRow, col });
+                }
+            }
+        }
+
+        // Diagonaal slaan (links)
+        if (col > 0) {
+            const piece = board.getPiece(newRow, col - 1);
+            if (piece && piece.color !== this.color) {
+                moves.push({ row: newRow, col: col - 1 });
+            }
+        }
+
+        // Diagonaal slaan (rechts)
+        if (col < 7) {
+            const piece = board.getPiece(newRow, col + 1);
+            if (piece && piece.color !== this.color) {
+                moves.push({ row: newRow, col: col + 1 });
+            }
+        }
+
+        return moves;
     }
 }

@@ -15,7 +15,26 @@ export class Knight extends Piece {
     }
 
     getPossibleMoves(row, col, board) {
-        // TODO: Implementeer paard bewegingen (L-vorm)
-        return [];
+        const moves = [];
+        const knightMoves = [
+            [-2, -1], [-2, 1],
+            [-1, -2], [-1, 2],
+            [1, -2], [1, 2],
+            [2, -1], [2, 1]
+        ];
+
+        for (const [dRow, dCol] of knightMoves) {
+            const newRow = row + dRow;
+            const newCol = col + dCol;
+
+            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                const piece = board.getPiece(newRow, newCol);
+                if (!piece || piece.color !== this.color) {
+                    moves.push({ row: newRow, col: newCol });
+                }
+            }
+        }
+
+        return moves;
     }
 }
