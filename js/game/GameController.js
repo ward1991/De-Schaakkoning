@@ -1,6 +1,9 @@
 /**
  * GameController - Coördineert het spel tussen Board, Game en UI
+ * Bevat nu AI integratie!
  */
+
+import {ChessAI} from '../ai/ChessAI.js';
 
 export class GameController {
     constructor(game, board, boardRenderer, ui) {
@@ -11,6 +14,13 @@ export class GameController {
         this.selectedSquare = null;
         this.selectedPiece = null;
         this.moveStack = []; // Voor undo functionaliteit
+        this.isAIThinking = false;
+
+        // Initialiseer AI als het een AI spel is
+        if (this.game.gameMode === 'ai') {
+            this.ai = new ChessAI(this.game.difficulty);
+            console.log(`AI geïnitialiseerd: ${this.game.difficulty}`);
+        }
 
         this.setupEventListeners();
         this.updateUI();
@@ -23,6 +33,12 @@ export class GameController {
         const boardElement = document.getElementById('chess-board');
 
         boardElement.addEventListener('click', (e) => {
+            // Blokkeer input als AI aan het denken is
+            if (this.isAIThinking) {
+                console.log('AI is aan het denken...');
+                return;
+            }
+
             const square = e.target.closest('.square');
             if (!square) return;
 
@@ -37,6 +53,11 @@ export class GameController {
      * Behandel klik op een vakje
      */
     handleSquareClick(row, col) {
+        // In AI mode: alleen wit kan spelen
+        if (this.game.gameMode === 'ai' && this.game.currentPlayer === 'black') {
+            return;
+        }
+
         const piece = this.board.getPiece(row, col);
 
         // Als er al een stuk geselecteerd is
@@ -46,6 +67,11 @@ export class GameController {
                 this.selectedSquare = null;
                 this.selectedPiece = null;
                 this.boardRenderer.clearHighlights();
+
+                // Als het een AI spel is en het spel niet voorbij is, laat de AI een zet doen
+                if (this.game.gameMode === 'ai' && !this.game.checkGameEnd()) {
+                    this.makeAIMove();
+                }
             } else {
                 // Als het klikken op een eigen stuk is, selecteer dat stuk
                 if (piece && piece.color === this.game.currentPlayer) {
@@ -67,6 +93,44 @@ export class GameController {
     }
 
     /**
+     * Laat de AI een zet maken
+     */
+    async makeAIMove() {
+        this.isAIThinking = true;
+        this.ui.showMessage('AI is aan het denken...', 'info');
+        const startTime = Date.now();
+        // Kleine delay voor betere UX
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        try {
+            const move = this.ai.findBestMove(this.board, this.game);
+
+            if (move) {
+                console.log(`AI zet: ${move.from.row},${move.from.col} -> ${move.to.row},${move.to.col}`);
+
+                // Voer de AI zet uit
+                this.tryMove(move.from.row, move.from.col, move.to.row, move.to.col, true);
+
+                // Highlight de AI zet
+                this.board.highlightLastMove(
+                    move.from.row,
+                    move.from.col,
+                    move.to.row,
+                    move.to.col
+                );
+            } else {
+                console.error('AI kon geen zet vinden!');
+            }
+        } catch (error) {
+            console.error('AI fout:', error);
+        }
+        const endTime = Date.now();
+        this.ui.showMessage(`AI vond beste zet in ${endTime - startTime}ms, depth = ${this.ai.depths[this.ai.difficulty]}`, 'success');
+
+        this.isAIThinking = false;
+    }
+
+    /**
      * Selecteer een vakje
      */
     selectSquare(row, col, piece) {
@@ -77,7 +141,7 @@ export class GameController {
         this.boardRenderer.render(this.board);
         this.boardRenderer.highlightSelected(row, col);
 
-        // Toon geldige zetten (voor nu simpel: alle lege vakjes rondom)
+        // Toon geldige zetten
         const validMoves = this.getValidMoves(row, col, piece);
         this.boardRenderer.showValidMoves(validMoves);
     }
@@ -85,7 +149,7 @@ export class GameController {
     /**
      * Probeer een zet uit te voeren
      */
-    tryMove(fromRow, fromCol, toRow, toCol) {
+    tryMove(fromRow, fromCol, toRow, toCol, isAIMove = false) {
         const piece = this.board.getPiece(fromRow, fromCol);
         const targetPiece = this.board.getPiece(toRow, toCol);
 
@@ -104,52 +168,45 @@ export class GameController {
         const isValidMove = validMoves.some(move => move.row === toRow && move.col === toCol);
 
         if (!isValidMove) {
-            console.log('Ongeldige zet!');
+            if (!isAIMove) console.log('Ongeldige zet!');
             return false;
         }
 
         // SPECIALE VALIDATIE VOOR KONING: mag niet naar vakje onder aanval
         if (piece.type === 'king') {
-            // Simuleer de zet tijdelijk om te kijken of het doelvakje veilig is
             const tempOriginalPiece = this.board.getPiece(toRow, toCol);
             this.board.setPiece(toRow, toCol, piece);
             this.board.setPiece(fromRow, fromCol, null);
 
-            // Controleer of het doelvakje onder aanval staat
             const underAttack = this.game.isSquareUnderAttack(toRow, toCol, piece.color, this.board);
 
-            // Herstel de zet
             this.board.setPiece(fromRow, fromCol, piece);
             this.board.setPiece(toRow, toCol, tempOriginalPiece);
 
             if (underAttack) {
-                this.ui.showMessage('De koning kan niet naar een vakje onder aanval!', 'error');
+                if (!isAIMove) this.ui.showMessage('De koning kan niet naar een vakje onder aanval!', 'error');
                 return false;
             }
         }
 
         // KRITIEK: Controleer of deze zet schaak opheft indien nodig
-        // Simuleer de zet
         const originalPiece = this.board.getPiece(toRow, toCol);
         this.board.setPiece(toRow, toCol, piece);
         this.board.setPiece(fromRow, fromCol, null);
 
         const stillInCheck = this.game.isInCheck(this.game.currentPlayer, this.board);
 
-        // Herstel de zet
         this.board.setPiece(fromRow, fromCol, piece);
         this.board.setPiece(toRow, toCol, originalPiece);
 
-        // Als je schaak staat en deze zet lost het niet op
         if (this.game.isInCheck(this.game.currentPlayer, this.board)) {
             if (stillInCheck) {
-                this.ui.showMessage('Je staat SCHAAK! Deze zet lost het niet op!', 'error');
+                if (!isAIMove) this.ui.showMessage('Je staat SCHAAK! Deze zet lost het niet op!', 'error');
                 return false;
             }
         } else {
-            // Als je NIET schaak staat, mag deze zet je ook niet in schaak zetten
             if (stillInCheck) {
-                this.ui.showMessage('Deze zet zet je eigen koning schaak!', 'error');
+                if (!isAIMove) this.ui.showMessage('Deze zet zet je eigen koning schaak!', 'error');
                 return false;
             }
         }
@@ -190,7 +247,7 @@ export class GameController {
             this.ui.showGameOver(winner, 'Schaakmat!');
         }
 
-        // Update UI (player info en move history)
+        // Update UI
         this.updateUI();
 
         console.log(`Zet: ${moveNotation}, Nu aan de beurt: ${this.game.currentPlayer}`);
@@ -207,20 +264,27 @@ export class GameController {
             return;
         }
 
-        const moveData = this.moveStack.pop();
+        // In AI mode: maak 2 zetten ongedaan (speler + AI)
+        const undoCount = this.game.gameMode === 'ai' && this.moveStack.length >= 2 ? 2 : 1;
 
-        // Herstel de zet
-        this.board.setPiece(moveData.from.row, moveData.from.col, moveData.piece);
-        this.board.setPiece(moveData.to.row, moveData.to.col, moveData.capturedPiece);
+        for (let i = 0; i < undoCount; i++) {
+            if (this.moveStack.length === 0) break;
 
-        // Herstel hasMoved status
-        moveData.piece.hasMoved = moveData.hadMoved;
+            const moveData = this.moveStack.pop();
 
-        // Wissel terug van speler
-        this.game.switchPlayer();
+            // Herstel de zet
+            this.board.setPiece(moveData.from.row, moveData.from.col, moveData.piece);
+            this.board.setPiece(moveData.to.row, moveData.to.col, moveData.capturedPiece);
 
-        // Verwijder laatste zet uit geschiedenis
-        this.game.moveHistory.pop();
+            // Herstel hasMoved status
+            moveData.piece.hasMoved = moveData.hadMoved;
+
+            // Wissel terug van speler
+            this.game.switchPlayer();
+
+            // Verwijder laatste zet uit geschiedenis
+            this.game.moveHistory.pop();
+        }
 
         // Reset game state
         this.game.gameState = 'playing';
@@ -257,9 +321,7 @@ export class GameController {
         const possibleMoves = piece.getPossibleMoves(row, col, this.board);
         const validMoves = [];
 
-        // Filter alleen zetten die legaal zijn (geen schaak na de zet)
         for (const move of possibleMoves) {
-            // Speciale check voor koning: mag niet naar vakje onder aanval
             if (piece.type === 'king') {
                 const tempOriginalPiece = this.board.getPiece(move.row, move.col);
                 this.board.setPiece(move.row, move.col, piece);
@@ -270,23 +332,18 @@ export class GameController {
                 this.board.setPiece(row, col, piece);
                 this.board.setPiece(move.row, move.col, tempOriginalPiece);
 
-                if (underAttack) {
-                    continue; // Skip deze zet
-                }
+                if (underAttack) continue;
             }
 
-            // Simuleer de zet om te kijken of het je in schaak zet
             const originalPiece = this.board.getPiece(move.row, move.col);
             this.board.setPiece(move.row, move.col, piece);
             this.board.setPiece(row, col, null);
 
             const wouldBeInCheck = this.game.isInCheck(this.game.currentPlayer, this.board);
 
-            // Herstel de zet
             this.board.setPiece(row, col, piece);
             this.board.setPiece(move.row, move.col, originalPiece);
 
-            // Als deze zet je NIET in schaak zet, is het geldig
             if (!wouldBeInCheck) {
                 validMoves.push(move);
             }

@@ -81,4 +81,28 @@ export class Board {
         this.squares = this.createEmptyBoard();
         this.setupInitialPosition();
     }
+
+    highlightLastMove(fromRow, fromCol, toRow, toCol) {
+        // Verwijder vorige highlights
+        this.clearLastMoveHighlight();
+
+        // Highlight van-vakje
+        const fromSquare = document.querySelector(`[data-row="${fromRow}"][data-col="${fromCol}"]`);
+        if (fromSquare) {
+            fromSquare.classList.add('last-move');
+        }
+
+        // Highlight naar-vakje
+        const toSquare = document.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
+        if (toSquare) {
+            toSquare.classList.add('last-move');
+        }
+    }
+
+    clearLastMoveHighlight() {
+        document.querySelectorAll('.last-move').forEach(square => {
+            square.classList.remove('last-move');
+        });
+    }
+
 }

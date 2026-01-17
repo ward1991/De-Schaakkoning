@@ -45,6 +45,10 @@ function initializeMenus() {
     document.getElementById('btn-hard').addEventListener('click', () => {
         startGame('ai', 'hard');
     });
+
+    document.getElementById('btn-jurgen').addEventListener('click', () => {
+        startGame('ai', 'jurgen');
+    });
     
     document.getElementById('btn-back-to-main').addEventListener('click', () => {
         showMainMenu();
